@@ -1,0 +1,17 @@
+<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
+<Configuration>
+    <SingleSiteApp reference="{{ APP_NAME }}" appdir="{{ APP_DIR }}">
+        <Server host="{{ APP_HOST }}" port="{{ APP_PORT }}" />
+        <CommandLine stdout="pipe" stderr="stderr">
+            <Interpreter>{{ PYTHON_EXE }}</Interpreter>
+            <Arguments>
+                <Argument>{{ ENTRY_POINT }}</Argument>
+            </Arguments>
+        </CommandLine>
+        <Instances auto="true" init-load="5" increment-by="1" thresold="10">
+            {% for instance in instances %}
+            <Instance host="{{ instance[0] }}" port="{{ instance[1] }}" active="true"/>
+            {% endfor %}
+        </Instances>
+    </SingleSiteApp>
+</Configuration>

@@ -1,0 +1,70 @@
+from flask import Flask, make_response, render_template
+
+#  * Appplication : {{ APP_NAME }}
+#  * Author : @{{ AUTHOR_NAME }}
+#  * License : {{ APP_LICENSE }}
+#  * Copyright owner : {{ COPYRIGHT_OWNER }}
+#  * Version : {{ APP_VERSION }}
+#  * Created on : {{ APP_CREATE_DATE }} {{ APP_CREATE_TIME }}
+
+
+from {{ PACKAGE_NAME }}.settings import (
+    SECRET_KEY,
+    TEMPLATES_DIR,
+    STATIC_DIR,
+    INSTANCE_HOST,
+    INSTANCE_PORT,
+    INSTANCE_DEBUG,
+    INSTANCE_RELOADER,
+    INSTANCE_MULTITHREADED
+)
+from {{ PACKAGE_NAME }}.settings import get_content
+
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = SECRET_KEY
+app.config['TEMPLATES_DIR'] = TEMPLATES_DIR
+app.config['STATIC_DIR'] = STATIC_DIR
+
+@app.route('/static/<string:filename>')
+def static_file(filename):
+    fileext = filename.split('.')[-1].lower()
+    if fileext in ('jpeg', 'jpg', 'gif', 'png', 'ico'):
+        content, status_code = get_content(filename, 'image')
+        if status_code == 200:
+            content_type = 'image/%s'%fileext
+        else:
+            content_type = 'text/plain'
+    elif fileext in ('css', ):
+        content, status_code = get_content(filename, 'css')
+        if status_code == 200:
+            content_type = 'text/stylesheet'
+        else:
+            content_type = 'text/plain'
+    else:
+        content, status_code = get_content(filename, '')
+        content_type = 'text/plain'
+    return make_response(content, status_code, content_type)
+
+@app.route('/js/<string:filename>')
+def js_file(filename):
+    script_content, status_code = get_content(filename, 'script')
+    if status_code == 200:
+        content_type = 'text/javascript'
+    else:
+        content_type = 'text/plain'
+    return make_response(script_content, status_code, content_type)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+if __name__ == "__main__":
+    app.run(
+        debug=INSTANCE_DEBUG,
+        host=INSTANCE_HOST,
+        port=INSTANCE_PORT,
+        use_reloader=INSTANCE_RELOADER,
+        multithreaded=INSTANCE_MULTITHREADED
+    )

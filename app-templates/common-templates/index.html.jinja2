@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!--
+        Application : {{ APP_NAME }}
+        Author : @{{ AUTHOR_NAME }}
+        Copyright owner : {{ AUTHOR_EMAIL }}
+        License : {{ APP_LICENSE }}
+        Version : {{ APP_VERSION }}
+        Create Date & Time : {{ APP_CREATE_DATE }} {{ APP_CREATE_TIME }}
+    -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ APP_NAME }} - index</title>
+    <script src="/js/app.js" type="text/javascript"></script>
+    {% raw %}
+    <link href="{{ url_for('static') + '/style.css' }}" rel="stylesheet">
+    {% endraw %}
+</head>
+<body>
+    <div class="root">
+        <h1>{{ APP_NAME }} is ready to be used</h1>
+    </div>
+</body>
+</html>

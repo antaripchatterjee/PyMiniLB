@@ -1,0 +1,78 @@
+import os
+import secrets
+
+#  * Appplication : {{ APP_NAME }}
+#  * Author : @{{ AUTHOR_NAME }}
+#  * License : {{ APP_LICENSE }}
+#  * Copyright owner : {{ COPYRIGHT_OWNER }}
+#  * Version : {{ APP_VERSION }}
+#  * Created on : {{ APP_CREATE_DATE }} {{ APP_CREATE_TIME }}
+
+SECRET_KEY = secrets.token_urlsafe(1024)
+
+
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        __file__
+    )
+)
+TEMPLATES_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        'templates'
+    )
+)
+
+SRC_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        'src'
+    )
+)
+
+IMAGES_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        'static',
+        'images'
+    )
+)
+
+CSS_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        'static',
+        'css'
+    )
+)
+
+INSTANCE_HOST = os.environ['HOST']
+INSTANCE_PORT = os.environ['PORT']
+INSTANCE_DEBUG = os.environ['DEBUG']
+INSTANCE_RELOADER = os.environ['RELOADER']
+INSTANCE_MULTITHREADED = os.environ['MULTITHREADED']
+
+def get_content(filename, filetype):
+    if filetype.lower() == 'script':
+        try:
+            script_filename = os.path.abspath(os.path.join(SRC_DIR, filename))
+            script_content = open(script_filename).read()
+            return script_content, 200
+        except FileNotFoundError:
+            return 'File not found', 404
+    elif filetype.lower() == 'image':
+        try:
+            image_filename = os.path.abspath(os.path.join(IMAGES_DIR, filename))
+            image_content = open(image_filename).read()
+            return image_content, 200
+        except FileNotFoundError:
+            return 'File not found', 404
+    elif filetype.lower() == 'css':
+        try:
+            css_filename = os.path.abspath(os.path.join(CSS_DIR, filename))
+            css_content = open(css_filename).read()
+            return css_content, 200
+        except FileNotFoundError:
+            return 'File not found', 404
+    else:
+        return 'Forbidden', 403

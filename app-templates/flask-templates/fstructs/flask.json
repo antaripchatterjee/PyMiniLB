@@ -1,0 +1,91 @@
+{
+    "folder-name" : "{{ APP_NAME }}",
+    "folders" : [
+        {
+            "folder-name" : "{{ PACKAGE_NAME }}",
+            "folders" : [
+                {
+                    "folder-name" : "blueprints",
+                    "folders" : [],
+                    "files" : [
+                        {
+                            "file-name" : "__init__.py"
+                        }
+                    ]
+                }
+            ],
+            "files" : [
+                {
+                    "file-name" : "settings.py",
+                    "template" : true,
+                    "template-path" : "flask-templates/settings.py.jinja2"
+                },
+                {
+                    "file-name" : "__init__.py"
+                }
+            ]
+        },
+        {
+            "folder-name" : "config",
+            "folders" : [],
+            "files" : [
+                {
+                    "file-name" : "site-config.xml",
+                    "template" : true,
+                    "template-path" : "common-templates/site-config.xml.jinja2"
+                }
+            ]
+        },
+        {
+            "folder-name" : "src",
+            "folders" : [],
+            "files" : [
+                {
+                    "file-name" : "app.js",
+                    "template" : true,
+                    "template-path" : "common-templates/app.js.jinja2"
+                }
+            ]
+        },
+        {
+            "folder-name" : "templates",
+            "folders" : [],
+            "files" : [
+                {
+                    "file-name" : "index.html",
+                    "template" : true,
+                    "template-path" : "common-templates/index.html.jinja2"
+                }
+            ]
+        },
+        {
+            "folder-name" : "static",
+            "folders" : [
+                {
+                    "folder-name" : "images",
+                    "folders" : [],
+                    "files" : []
+                },
+                {
+                    "folder-name" : "css",
+                    "folders" : [],
+                    "files" : [
+                        {
+                            "file-name" : "style.css",
+                            "template" : true,
+                            "template-path" : "common-templates/style.css.jinja2"
+                        }
+                    ]
+                }
+            ],
+            "files" : []
+        }
+    ],
+    "files" : [
+        {
+            "file-name" : "{{ ENTRY_POINT }}",
+            "template" : true,
+            "template-path" : "flask-templates/entry-point.jinja2"
+        }
+    ]
+}
