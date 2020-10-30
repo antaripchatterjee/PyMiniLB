@@ -1,12 +1,16 @@
+{% if BASH_PATH != None %}
 #! {{ BASH_PATH }}
+{% else %}
+#! /bin/bash
+{% endif %}
 
 echo "Creating virtualenv"
 {{ PYTHON_EXE }} -m virtualenv {{ VENV_NAME }}
 if [ $? -eq 0 ]
 then
-	echo "Virtual env $VENV_NAME has been created"
+	echo "Virtual env {{ VENV_NAME }} has been created"
 else
-	echo "Could not create virtual env $VENV_NAME" 2>/dev/stderr
+	echo "Could not create virtual env {{ VENV_NAME }}" 2>/dev/stderr
 	exit -1
 fi
 
@@ -17,13 +21,13 @@ then
 	echo "virtual env is activated"
 else
 	echo "Could not activate virtual env" 2>/dev/stderr
-	exit -2
+	exit -1
 fi
 
-env_py="$(which {{ PYTHON_EXE }})"
+env_py=$(which {{ PYTHON_EXE }})
 
 
-required_modules=({% for required_module in REQUIRED_MODULES %}{{ required_module }} {% endfor %})
+required_modules=({% for required_module in REQUIRED_MODULES %}"{{ required_module }}" {% endfor %})
 
 for required_module in "${required_modules[@]}"
 do
@@ -39,7 +43,7 @@ do
 done
 
 
-$env_py -m pip freeze >> requirements.txt
+$env_py -m pip freeze > requirements.txt
 if [ $? -eq 0 ]
 then
 	echo "requirments.txt has been created"
@@ -48,19 +52,19 @@ else
 	echo "Use command: pip freeze > requirments.txt"
 fi
 
-{% if GITREPO %}
+{% if IS_GITREPO %}
 if which git >/dev/null;then
     echo "Initializing git"
     git init
     if [ $? -eq 0 ]
     then
-        echo "Initialized git"
+        echo "Initialized as a git repor"
         printf "{{ VENV_NAME }}/*\n{{ PACKAGE_NAME }}/__pycache__/*\n{{ PACKAGE_NAME }}/blueprints/__pycache__/*" > .gitignore
     else
         echo "git initialization has been failed" 2>/dev/stderr
     fi
 else
-    echo "git executable is not found" 2>/dev/stderr
+    echo "git executable has not been found" 2>/dev/stderr
 	echo "install git and execute git init from app directory"
 fi
 {% endif %}

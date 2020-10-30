@@ -1,0 +1,70 @@
+Write-Host "Creating virtual env" -Color Magenta
+{{ PYTHON_EXE }} -m virtualenv {{ VENV_NAME }}
+
+If ($LASTEXITCODE -eq 0) {
+    Write-Host "Virtual env {{ VENV_NAME }} has been created" -Color Green
+} Else {
+    Write-Error "Could not create virtual env {{ VENV_NAME }}"
+}
+
+Write-Host "Activating virtual env" -Color Magenta
+.\{{ VENV_NAME }}\Scripts\activate.ps1
+
+If ($LASTEXITCODE -eq 0) {
+    Write-Host "virtual env is activated" -Color Green
+} Else {
+    Write-Error "Could not activate virtual env"
+}
+
+$env_py = (Get-Command {{ PYTHON_EXE }}).Path
+
+{% set no_modules = REQUIRED_MODULES | length %}
+
+$required_modules = @({% for required_module in REQUIRED_MODULES %}"{{ required_module }}"{% if loop.index < no_modules %},{% endif %} {% endfor %})
+
+$required_modules | ForEach-Object {
+    $required_module = $_
+    Write-Host "Trying to install dependency: $($required_module)" -Color Magenta
+    & $env_py -m pip install $required_module --prefix {{ VENV_NAME }}
+    If ($LASTEXITCODE -eq 0) {
+        Write-Host "Installed module $($required_module)" -Color Green
+    } Else {
+        Write-Warning "Could not install module $($required_module)"
+        Write-Output "Use command: pip install $($required_module)"
+    }
+}
+
+& $env_py -m pip freeze | Out-File -FilePath .\requirements.txt
+If ($LASTEXITCODE -eq 0) {
+    Write-Host "requirements.txt has been created" -Color Green
+} Else {
+    Write-Warning "Could not freeze the dependencies"
+    Write-Output "Use command: $($env_py) -m pip freeze | Out-File -FilePath .\requirements.txt"
+}
+
+{% if IS_GITREPO %}
+$git_path = $null
+try {
+    $git_path = (Get-Command git).Path
+    Write-Host "Initializing git" -Color Magenta
+    & $git_path init
+    If ($LASTEXITCODE -eq 0) {
+        Write-Host "Initialized as a git repo" -Color Green
+        Set-Content ".gitignore" "{{ VENV_NAME }}/*`n{{ PACKAGE_NAME }}/__pycache__/*`n{{ PACKAGE_NAME }}/blueprints/__pycache__/*"
+    } Else {
+        Write-Warning "git initialization has been failed"
+    }
+} catch {
+    Write-Warning "git executable has not been found"
+    Write-Output "install git and execute git init from app dir"
+}
+{% endif %}
+
+deactivate
+
+If ($LASTEXITCODE -eq 0) {
+    Write-Host "Deactivated virtual env" -Color Magenta
+} Else {
+    Write-Warning "Could not deactivate virtual env"
+    Write-Output "Use command: deactivate"
+}

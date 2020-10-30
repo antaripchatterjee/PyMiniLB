@@ -4,7 +4,6 @@ from pyminilb.settings import APP_TEMPLATES_DIR
 import json
 import os
 from pymsgprompt.logger import perror, pinfo, pwarn
-import shutil
 
 class CreateApp():
     def render(self, path, **params):
@@ -79,32 +78,23 @@ class CreateApp():
         fs_json = json.loads(fs_json_content)
         
         return self.__internal_create_fs(os.path.dirname(self.params['APP_DIR']), fs_json)
-    def create_venv_sh(self, newappdir):
+    def get_venv_script(self, newappdir):
         if os.sys.platform.upper() == 'WIN32':
-            return None
+            venv_script_path = os.path.abspath(os.path.join(newappdir, 'venv.ps1'))
         else:
-            path_to_template = '/venv-templates/venv.sh.jinja2'
-            shell_script_content = self.render(path_to_template,
-                BASH_PATH=shutil.which('bash'),
-                PYTHON_EXE=os.path.basename(os.sys.executable),
-                VENV_NAME=self.params['VENV_NAME'],
-                REQUIRED_MODULES=self.params['REQUIRED_MODULES'],
-                PACKAGE_NAME=self.params['PACKAGE_NAME'],
-                GITREPO=self.params['IS_GITREPO']
-            )
-        venv_script_path = os.path.abspath(os.path.join(newappdir, 'venv.sh'))
-        with open(venv_script_path, 'w') as venv_script:
-            venv_script.write(shell_script_content)
+            venv_script_path = os.path.abspath(os.path.join(newappdir, 'venv.sh'))
+        if not os.path.isfile(venv_script_path):
+            return None
         return venv_script_path
     def exec_venv(self, script_path):
         cwd = os.path.abspath(os.path.dirname(script_path))
         script_name = os.path.basename(script_path)
         if os.sys.platform.upper() == 'WIN32':
-            pass
+            command = ['powershell', f'.\{script_name}']
         else:
             command = [f'./{script_name}']
         try:
-            pinfo('Executing venv.sh')
+            pinfo(f'Executing {script_name}')
             status = subprocess.run(command, cwd=cwd, check=True, text=True, shell=True,
                 stderr=subprocess.STDOUT, stdout=subprocess.PIPE, encoding='utf-8')
             if status.stdout is not None:

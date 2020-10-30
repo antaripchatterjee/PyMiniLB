@@ -8,6 +8,7 @@ import re
 import os
 import getpass
 import string
+import shutil
 
 from pyminilb.actions.create import CreateApp
 
@@ -33,7 +34,7 @@ def add_license(create_app_params, _license):
 
 def main():
     create_app_params = {}
-    __version__ = '0.0.1'
+    __version__ = '0.0.2'
     parser = argparse.ArgumentParser(prog="PyMiniLB", description="A python based mini load balancer")
     parser.add_argument('--version', '-v', action='version', version="%(prog)s {0}\n".format(__version__))
     parser.add_argument('-newapp', action='store', default=None, type=str,
@@ -171,13 +172,14 @@ def main():
         ask('Do you want to initialize a git repo?', timestamp=True, default='yes',
             choices=['yes', 'no'], on_success=lambda q, a: is_gitrepo(create_app_params, a))
         create_app_params['OS'] = os.sys.platform.upper()
+        create_app_params['BASH_PATH'] = shutil.which('bash')
         create_app_params['PYTHON_EXE'] = os.path.basename(os.sys.executable)
         create_app_params['instances'] = unique_instance_addrs
         newappcreator = CreateApp(create_app_params)
         pinfo('Crating your app.. Please wait for sometime')
         newappdir = newappcreator.create_fs()
         if newappdir is not None:
-            venv_script_path = newappcreator.create_venv_sh(newappdir)
+            venv_script_path = newappcreator.get_venv_script(newappdir)
             if venv_script_path is not None:
                 if result.exec_script:
                     newappcreator.exec_venv(venv_script_path)
@@ -188,6 +190,6 @@ def main():
                     else:
                         pinfo(f'Please execute the venv script from {create_app_params["APP_DIR"]}')
             else:
-                perror('Could not create app')
+                perror('Could not get venv script')
 if __name__ == "__main__":
     main()

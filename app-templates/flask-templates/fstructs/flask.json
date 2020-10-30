@@ -86,6 +86,16 @@
             "file-name" : "{{ ENTRY_POINT }}",
             "template" : true,
             "template-path" : "flask-templates/entry-point.jinja2"
+        },
+        {
+            "file-name" : "venv.sh",
+            "template" : true,
+            "template-path" : "venv-templates/venv.sh.jinja2"
+        },
+        {
+            "file-name" : "venv.ps1",
+            "template" : true,
+            "template-path" : "venv-templates/venv.ps1.jinja2"
         }
     ]
 }
