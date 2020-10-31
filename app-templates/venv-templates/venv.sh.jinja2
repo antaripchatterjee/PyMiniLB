@@ -59,7 +59,7 @@ if which git >/dev/null;then
     if [ $? -eq 0 ]
     then
         echo "Initialized as a git repor"
-        printf "{{ VENV_NAME }}/*\n{{ PACKAGE_NAME }}/__pycache__/*\n{{ PACKAGE_NAME }}/blueprints/__pycache__/*" > .gitignore
+        printf "{{ VENV_NAME }}/*\n{{ PACKAGE_NAME }}/__pycache__/*\n{{ PACKAGE_NAME }}/blueprints/__pycache__/*\n/logs/stdout/*\n/logs/stderr/*" > .gitignore
     else
         echo "git initialization has been failed" 2>/dev/stderr
     fi

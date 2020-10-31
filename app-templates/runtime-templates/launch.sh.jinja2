@@ -1,0 +1,34 @@
+{% if BASH_PATH != None %}
+#! {{ BASH_PATH }}
+{% else %}
+#! /bin/bash
+{% endif %}
+
+source {{ VENV_NAME }}/bin/activate
+
+
+INTERPRETER="{{ PYTHON_EXE }}"
+
+HOST=`printenv HOST`
+readonly HOST
+
+PORT=`printenv PORT`
+readonly PORT
+
+LOGTIMESTAMP=`printenv LOGTIMESTAMP`
+readonly LOGTIMESTAMP
+
+PWD=`pwd`
+
+STDOUT_LOG=${PWD%%/}/logs/stdout/stdout_${LOGTIMESTAMP}_${PID}_${HOST}_${PORT}.log
+STDERR_LOG=${PWD%%/}/logs/stderr/stderr_${LOGTIMESTAMP}_${PID}_${HOST}_${PORT}.log
+
+$INTERPRETER {{ ENTRY_POINT }} ${args[@]} >$STDOUT_LOG 2>$STDERR_LOG &
+
+CPID=$!
+readonly CPID
+
+echo "CPID=${CPID}"
+wait $CPID
+
+deactivate

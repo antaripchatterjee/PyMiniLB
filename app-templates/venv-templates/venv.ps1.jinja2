@@ -1,17 +1,17 @@
-Write-Host "Creating virtual env" -Color Magenta
+Write-Host "Creating virtual env" -ForegroundColor Magenta
 {{ PYTHON_EXE }} -m virtualenv {{ VENV_NAME }}
 
 If ($LASTEXITCODE -eq 0) {
-    Write-Host "Virtual env {{ VENV_NAME }} has been created" -Color Green
+    Write-Host "Virtual env {{ VENV_NAME }} has been created" -ForegroundColor Green
 } Else {
     Write-Error "Could not create virtual env {{ VENV_NAME }}"
 }
 
-Write-Host "Activating virtual env" -Color Magenta
+Write-Host "Activating virtual env" -ForegroundColor Magenta
 .\{{ VENV_NAME }}\Scripts\activate.ps1
 
 If ($LASTEXITCODE -eq 0) {
-    Write-Host "virtual env is activated" -Color Green
+    Write-Host "virtual env is activated" -ForegroundColor Green
 } Else {
     Write-Error "Could not activate virtual env"
 }
@@ -24,10 +24,10 @@ $required_modules = @({% for required_module in REQUIRED_MODULES %}"{{ required_
 
 $required_modules | ForEach-Object {
     $required_module = $_
-    Write-Host "Trying to install dependency: $($required_module)" -Color Magenta
+    Write-Host "Trying to install dependency: $($required_module)" -ForegroundColor Magenta
     & $env_py -m pip install $required_module --prefix {{ VENV_NAME }}
     If ($LASTEXITCODE -eq 0) {
-        Write-Host "Installed module $($required_module)" -Color Green
+        Write-Host "Installed module $($required_module)" -ForegroundColor Green
     } Else {
         Write-Warning "Could not install module $($required_module)"
         Write-Output "Use command: pip install $($required_module)"
@@ -36,7 +36,7 @@ $required_modules | ForEach-Object {
 
 & $env_py -m pip freeze | Out-File -FilePath .\requirements.txt
 If ($LASTEXITCODE -eq 0) {
-    Write-Host "requirements.txt has been created" -Color Green
+    Write-Host "requirements.txt has been created" -ForegroundColor Green
 } Else {
     Write-Warning "Could not freeze the dependencies"
     Write-Output "Use command: $($env_py) -m pip freeze | Out-File -FilePath .\requirements.txt"
@@ -46,11 +46,11 @@ If ($LASTEXITCODE -eq 0) {
 $git_path = $null
 try {
     $git_path = (Get-Command git).Path
-    Write-Host "Initializing git" -Color Magenta
+    Write-Host "Initializing git" -ForegroundColor Magenta
     & $git_path init
     If ($LASTEXITCODE -eq 0) {
-        Write-Host "Initialized as a git repo" -Color Green
-        Set-Content ".gitignore" "{{ VENV_NAME }}/*`n{{ PACKAGE_NAME }}/__pycache__/*`n{{ PACKAGE_NAME }}/blueprints/__pycache__/*"
+        Write-Host "Initialized as a git repo" -ForegroundColor Green
+        Set-Content ".gitignore" "{{ VENV_NAME }}/*`n{{ PACKAGE_NAME }}/__pycache__/*`n{{ PACKAGE_NAME }}/blueprints/__pycache__/*`n/logs/stdout/*`n/logs/stderr/*"
     } Else {
         Write-Warning "git initialization has been failed"
     }
@@ -63,7 +63,7 @@ try {
 deactivate
 
 If ($LASTEXITCODE -eq 0) {
-    Write-Host "Deactivated virtual env" -Color Magenta
+    Write-Host "Deactivated virtual env" -ForegroundColor Magenta
 } Else {
     Write-Warning "Could not deactivate virtual env"
     Write-Output "Use command: deactivate"

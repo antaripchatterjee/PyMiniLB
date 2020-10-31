@@ -1,0 +1,23 @@
+.\{{ VENV_NAME }}\Scripts\activate.ps1
+
+$INTERPRETER = "{{ PYTHON_EXE }}"
+New-Variable -Name HOST -Value $env:HOST
+    -Option ReadOnly
+New-Variable -Name PORT -Value $env:PORT
+    -Option ReadOnly
+New-Variable -Name LOGTIMESTAMP -Value $env:LOGTIMESTAMP
+    -Option ReadOnly
+
+$STDOUT_LOG = Join-Path -Path $PSScriptRoot -ChildPath "logs\stdout\stdout_$($LOGTIMESTAMP)_$($PID)_$($HOST)_$($PORT).log"
+$STDERR_LOG = Join-Path -Path $PSScriptRoot -ChildPath "logs\stderr\stderr_$($LOGTIMESTAMP)_$($PID)_$($HOST)_$($PORT).log"
+
+$proc = Start-Process -FilePath $INTERPRETER -ArgumentList $args -PassThru
+    -RedirectStandardError $STDERR_LOG -RedirectStandardOutput $STDOUT_LOG
+
+New-Variable -Name CPID -Value $proc.ID
+    -Option ReadOnly
+Write-Output "CPID=$($CPID)"
+
+Wait-Process -ID $CPID -ErrorAction SilentlyContinue
+
+deactivate

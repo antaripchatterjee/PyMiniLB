@@ -9,8 +9,12 @@ import os
 import getpass
 import string
 import shutil
+import sqlite3
+from datetime import datetime
 
 from pyminilb.actions.create import CreateApp
+from pyminilb.actions.start import StartApp
+from pyminilb.actions.runtime import SingleSiteAppRunner, ProcManager
 
 # create_app_params = {}
 
@@ -34,7 +38,7 @@ def add_license(create_app_params, _license):
 
 def main():
     create_app_params = {}
-    __version__ = '0.0.2'
+    __version__ = '0.0.3'
     parser = argparse.ArgumentParser(prog="PyMiniLB", description="A python based mini load balancer")
     parser.add_argument('--version', '-v', action='version', version="%(prog)s {0}\n".format(__version__))
     parser.add_argument('-newapp', action='store', default=None, type=str,
@@ -52,6 +56,9 @@ def main():
 
     parser.add_argument('-startapp', action='store_true', default=False,
         help="start an application", dest='startapp')
+    parser.add_argument('-site-config', '--sc', action='store', default='site-config.xml',
+        help="specify site config file explicitely", dest='site_config')
+
     parser.add_argument('-stopapp', action='store_true', default=False,
         help="stop an application", dest='stopapp')
     parser.add_argument('-reloadapp', action='store_true', default=False,
@@ -191,5 +198,49 @@ def main():
                         pinfo(f'Please execute the venv script from {create_app_params["APP_DIR"]}')
             else:
                 perror('Could not get venv script')
+    elif int_value == 2: # startapp
+        cwd = os.getcwd()
+        config_file = os.path.abspath(os.path.join(cwd, 'config', result.site_config))
+        if os.path.isfile(config_file):
+            app = StartApp(config_file)
+            app.validate()
+            appmanager = app.startapp()
+            if os.sys.platform.upper() == 'WIN32':
+                script_cmd = ['.\launch.ps1']
+            else:
+                script_cmd = ['./launch.sh']
+            if not os.path.isfile(os.path.abspath(script_cmd[-1])):
+                perror(f'Could not find {os.path.abspath(script_cmd[-1])}')
+                exit(-1)
+            commands = script_cmd + appmanager.args
+            if not appmanager.auto_lb:
+                procs = [ProcManager(appmanager.ref, { 'proc' : SingleSiteAppRunner().run(
+                    commands,
+                    os.getcwd(),
+                    dict(HOST=instance['@host'], PORT=instance['@port'],
+                        LOGTIMESTAMP=datetime.now().strftime(r'%Y-%m-%d_%H:%M:%S'))
+                    ),
+                    'host' : instance['@host'],
+                    'port' : instance['@port']
+                }) for instance in appmanager.instances]
+            else:
+                procs = [ProcManager(appmanager.ref, { 'proc' : SingleSiteAppRunner().run(
+                    commands,
+                    os.getcwd(),
+                    dict(HOST=instance['@host'], PORT=instance['@port'],
+                        LOGTIMESTAMP=datetime.now().strftime(r'%Y%m%d_%H%M%S'))
+                    ),
+                    'host' : instance['@host'],
+                    'port' : instance['@port']
+                }) for instance in appmanager.instances[:appmanager.init_lb]]
+            # print(procs)
+            for proc in procs:
+                proc.get_cpid()
+        else:
+            perror(f'Could not find site config file, {config_file}')
+    elif int_value == 4: # stopapp
+        pass
+    else: # reloadapp
+        pass
 if __name__ == "__main__":
     main()

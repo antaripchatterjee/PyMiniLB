@@ -26,6 +26,22 @@
             ]
         },
         {
+            "folder-name" : "logs",
+            "folders" : [
+                {
+                    "folder-name" : "stdout",
+                    "folders" : [],
+                    "files" : []
+                },
+                {
+                    "folder-name" : "stderr",
+                    "folders" : [],
+                    "files" : []
+                }
+            ],
+            "files" : []
+        },
+        {
             "folder-name" : "config",
             "folders" : [],
             "files" : [
@@ -96,6 +112,16 @@
             "file-name" : "venv.ps1",
             "template" : true,
             "template-path" : "venv-templates/venv.ps1.jinja2"
+        },
+        {
+            "file-name" : "launch.sh",
+            "template" : true,
+            "template-path" : "runtime-templates/launch.sh.jinja2"
+        },
+        {
+            "file-name" : "launch.ps1",
+            "template" : true,
+            "template-path" : "runtime-templates/launch.ps1.jinja2"
         }
     ]
 }
